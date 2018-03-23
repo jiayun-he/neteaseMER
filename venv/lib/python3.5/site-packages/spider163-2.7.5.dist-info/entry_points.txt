@@ -1,0 +1,3 @@
+[console_scripts]
+spider163 = spider163.bin.cli:main
+
