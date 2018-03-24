@@ -1,9 +1,8 @@
 import pymysql
 import os
 
-
-os.system('spider163 resetdb') #清空数据库
-os.system('spider163 get --playlist 111221399') #获取最高人气的粤语歌单的歌曲清单
+#os.system('spider163 resetdb') #delete current db
+#os.system('spider163 get --playlist 111221399')
 
 conn = pymysql.connect(host='localhost',
                              user='root',
@@ -20,9 +19,9 @@ songlist = cursor.fetchall()
 comment_list = []
 
 for song in songlist:
-    #获取歌曲信息（包括歌词）
+    #obtain song information
     os.system('spider163 get -s ' + str(song[0]))
-    #获取歌曲热门评论信息
+    #obtain song comments
     os.system('spider163 comment -s ' + str(song[0]))
 
 conn.close()

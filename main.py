@@ -18,3 +18,4 @@ cursor.execute(sql)
 comment = cursor.fetchone()
 result = nlp.sentiment(comment)
 print(result)
+
