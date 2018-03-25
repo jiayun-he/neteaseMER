@@ -1,8 +1,8 @@
 import pymysql
 import os
 
-#os.system('spider163 resetdb') #delete current db
-#os.system('spider163 get --playlist 111221399')
+os.system('spider163 resetdb') #delete current db
+os.system('spider163 get --playlist 111221399')
 
 conn = pymysql.connect(host='localhost',
                              user='root',

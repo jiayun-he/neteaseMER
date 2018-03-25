@@ -56,6 +56,5 @@ def rename(song_dir):
                 os.rename(song_dir + song, str(songinfo[1]) + ".wav")
 
 
-
-
-
+delete_missing()
+create_songlist()

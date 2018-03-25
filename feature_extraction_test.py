@@ -3,8 +3,8 @@ import os,sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-mp3_songdir = ""
-wav_songdir = ""
+mp3_songdir = "./audiofiles/"
+wav_songdir = "./audiofiles/wav/"
 #modified version of convert mp3 files to wav files
 def myConvertDirMP3ToWav(dirName, Fs, nC, useMp3TagsAsName = False):
     filenames = os.listdir(dirName)
@@ -15,6 +15,7 @@ def myConvertDirMP3ToWav(dirName, Fs, nC, useMp3TagsAsName = False):
         print command
         os.system(command)
 
-
 myConvertDirMP3ToWav(mp3_songdir,16000,2)#(directory,sampling rate,number_of_channels,use_mp3_tag_name_as_filename)
+command = "mv /audiofiles/*.wav /audiofiles/wav/"
+os.system(command)
 audioFeatureExtraction.mtFeatureExtractionToFileDir(wav_songdir, 2.0, 2.0, 0.050, 0.050, True, True)
