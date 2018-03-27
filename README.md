@@ -12,3 +12,5 @@ A project for Undergraduate Thesis of Jinan University.
 ##已完成的功能
 使用spider163获取歌单信息 并将评论歌词等需要用到contextual-based （基于文档的）MER的信息存放到数据库中
 
+------2018_03_28更新------
+自动将下载的歌曲根据网易云音乐的song_id重命名并获取midterm features （csv和npy文件）
