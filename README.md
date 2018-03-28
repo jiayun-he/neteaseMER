@@ -14,3 +14,6 @@ A project for Undergraduate Thesis of Jinan University.
 
 ------2018_03_28更新------
 自动将下载的歌曲根据网易云音乐的song_id重命名并获取midterm features （csv和npy文件）
+
+------2018_03_29更新------
+添加自动获取歌词及评论关键词并保存到csv中
