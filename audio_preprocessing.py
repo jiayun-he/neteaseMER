@@ -89,7 +89,19 @@ def rename_songs(song_dir):
                 new = song_dir + str(songinfo[1]) + ".wav"
                 os.renames(old,new)
 
+#store songinfo data to csv file
+def saveToCsv():
+    songinfos = get_songinfo()
+    csvfile = file('data/songinfo.csv','wb')
+    writers = csv.writer(csvfile)
+    writers.writerow(['id','song_id','lyrics','song_name','author','comment_all'])
+    if len(songinfos) == 0:
+        print("There is no record in table songinfo!")
+    for songinfo in songinfos:
+        writers.writerow([songinfo[0],songinfo[1],songinfo[2],songinfo[3],songinfo[4],songinfo[5]])
+    csvfile.close()
 #delete_missing()
 #delete_row_with_non_exist_file(song_dir)
 #rename_songs(song_dir)
 #delete_song_not_presented_in_db(song_dir)
+saveToCsv()
