@@ -8,6 +8,9 @@ A project for Undergraduate Thesis of Jinan University.
 
 - Tensorflow
 - spider163
+- pyAudioAnalysis
+- gensim
+- jieba
 
 ##已完成的功能
 使用spider163获取歌单信息 并将评论歌词等需要用到contextual-based （基于文档的）MER的信息存放到数据库中
@@ -17,3 +20,12 @@ A project for Undergraduate Thesis of Jinan University.
 
 ------2018_03_29更新------
 添加自动获取歌词及评论关键词并保存到csv中
+
+------2018_03_30更新------
+整理文件
+comment.py 预处理评论
+1. 从csv文件读取评论
+2. 使用jieba分词处理评论，并将分词后的评论使用gensim的word2vec生成词向量
+3. 将词向量保存为一个完整的参考字典，以及按歌曲分别的单独字典文件
+4. 保存使用word2vec生成的模型，便于以后研究使用
+5. 添加rnn的小demo

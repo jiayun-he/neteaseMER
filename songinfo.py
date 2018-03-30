@@ -89,6 +89,35 @@ def rename_songs(song_dir):
                 new = song_dir + str(songinfo[1]) + ".wav"
                 os.renames(old,new)
 
+#fill the songinfo table in database (merged all comments to one string)
+def create_songinfo():
+    sql = "select song_id, song_name, author from music163"
+    cursor.execute(sql)
+    songlist = cursor.fetchall()
+    songinfolist = []
+    conn.commit()
+    for index, song in enumerate(songlist):
+        song_id = song[0]
+        song_name = song[1]
+        author = song[2]
+        songinfolist.append([])
+        comment_merged = ""
+        # print(index,song)
+        sql = "select txt from comment163 where song_id = " + str(song_id)
+        cursor.execute(sql)
+        comment_list = cursor.fetchall()
+        for comment in comment_list:
+            comment_merged += comment[0]
+
+        conn.commit()
+        sql = "select txt from lyric163 where song_id = " + str(song_id)
+        cursor.execute(sql)
+        lyrics = cursor.fetchone()
+
+        sql = "insert into songinfo (song_id,lyrics,song_name,author,comment_all) VALUES (%s,%s,%s,%s,%s)"
+        cursor.execute(sql, (song_id, lyrics, song_name, author, comment_merged))
+        conn.commit()
+
 #store songinfo data to csv file
 def saveToCsv():
     songinfos = get_songinfo()
@@ -100,6 +129,7 @@ def saveToCsv():
     for songinfo in songinfos:
         writers.writerow([songinfo[0],songinfo[1],songinfo[2],songinfo[3],songinfo[4],songinfo[5]])
     csvfile.close()
+
 #delete_missing()
 #delete_row_with_non_exist_file(song_dir)
 #rename_songs(song_dir)
