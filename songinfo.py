@@ -12,7 +12,7 @@ conn = pymysql.connect(host='localhost',
                              )
 
 cursor = conn.cursor()
-song_dir = "your_dir_to_wav_files"
+song_dir = "./audiofiles/wav/"
 
 def create_songlist():
     sql = "select song_id, author, song_name from music163"
@@ -31,6 +31,8 @@ def get_songinfo():
 #delete incomplete data from database
 def delete_missing():
     sql = "delete from songinfo where isnull(lyrics) or isnull(comment_all)"
+    cursor.execute(sql)
+    sql = "delete from songinfo where lyrics = '' or comment_all = ''"
     cursor.execute(sql)
     conn.commit()
 
@@ -130,7 +132,8 @@ def saveToCsv():
         writers.writerow([songinfo[0],songinfo[1],songinfo[2],songinfo[3],songinfo[4],songinfo[5]])
     csvfile.close()
 
-#delete_missing()
+create_songinfo()
+delete_missing()
 #delete_row_with_non_exist_file(song_dir)
 #rename_songs(song_dir)
 #delete_song_not_presented_in_db(song_dir)
