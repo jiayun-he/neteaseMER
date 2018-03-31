@@ -5,8 +5,8 @@ os.system('spider163 resetdb') #delete current db
 os.system('spider163 get --playlist 111221399')
 
 conn = pymysql.connect(host='localhost',
-                             user='root',
-                             passwd='LUKEHE051308',
+                             user='your-username',
+                             passwd='your-password',
                              db='spider163',
                              charset='utf8',
                              )

@@ -5,8 +5,8 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 conn = pymysql.connect(host='localhost',
-                             user='root',
-                             passwd='LUKEHE051308',
+                             user='your-username',
+                             passwd='your-password',
                              db='spider163',
                              charset='utf8',
                              )
