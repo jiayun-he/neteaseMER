@@ -4,7 +4,8 @@ import pandas as pd
 import pickle
 from gensim.models import Word2Vec
 from gensim.models.word2vec import LineSentence
-import sys,csv
+from snownlp import SnowNLP
+import sys,csv,os
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -14,21 +15,65 @@ comment_cut_dir = './data/tmp/comment_cut/'
 comment_key_dir = './data/key_comment/'
 comment_model_csv_dir = './model/key_comment_csv/'
 comment_model_dir = './model/key_comment_model/'
+comment_va_dir = './model/key_comment_va/'
 
+#tmp model files
+_models_dir = './data/tmp/_models.obj'
+_key_dir = './data/tmp/_key_comment_vecs.obj'
+_valence_dir = './data/tmp/_valence.obj'
+_arousal_dir = './data/tmp/_arousal.obj'
+_labels_dir = './data/tmp/_labels.obj'
 class DataSet:
-    def __init__(self,word_vec_dim = 1, create_models = True, save_model = False, save_model_csv = False, save_comment_key_csv = False):
+    def __init__(self,word_vec_dim = 1, create_models = False, save_model = False, save_model_csv = False, save_comment_key_csv = False, save_comment_va = False):
         self._index_in_epoch = 0
         if create_models:
-            self._models,self._key_comment_vecs = self.create_model(word_vec_dim, save_model,save_model_csv, save_comment_key_csv)
-            key_filehandler = open('./data/tmp/_key_comment_vecs.obj','w')
+            self._models,self._key_comment_vecs = self.create_model(word_vec_dim, save_model,save_model_csv, save_comment_key_csv, save_comment_va)
+            self._valence, self._arousal = self.load_va_model()
+            key_filehandler = open(_key_dir,'w')
             pickle.dump(self._key_comment_vecs,key_filehandler)
-            model_filehandler = open('./data/tmp/_models.obj','w')
+            model_filehandler = open(_models_dir,'w')
             pickle.dump(self._models,model_filehandler)
+            valence_filehandler = open(_valence_dir,'w')
+            pickle.dump(self._valence,valence_filehandler)
+            arousal_filehandler = open(_arousal_dir,'w')
+            pickle.dump(self._arousal,arousal_filehandler)
+            #label_filehandler = open(_labels_dir,'w')
+            #pickle.dump(self._output,label_filehandler)
 
-        key_filehandler = open('./data/tmp/_key_comment_vecs.obj','r')
+        #label_filehandler = open(_labels_dir)
+        #self._output = pickle.load(label_filehandler)
+        key_filehandler = open(_key_dir, 'r')
         self._key_comment_vecs = pickle.load(key_filehandler)
-        model_filehandler = open('./data/tmp/_models.obj','r')
+        model_filehandler = open(_models_dir, 'r')
         self._models = pickle.load(model_filehandler)
+        valence_filehandler = open(_valence_dir, 'r')
+        self._valence = pickle.load(valence_filehandler)
+        arousal_filehandler = open(_arousal_dir, 'r')
+        self._arousal = pickle.load(arousal_filehandler)
+        self._songid_list = self.get_songid_list()
+        self._output = self.arrange_data()
+
+    def arrange_data(self):
+        output = []
+        for songid in self._songid_list:
+            for index in range(len(self._valence)):
+                if self._valence[index][0] == songid:
+                    #one_song_key_vec = self._key_comment_vecs[index][2]
+                    one_song_keyword = self._valence[index][1]
+                    one_song_valence = self._valence[index][2]
+                    one_song_arousal = self._arousal[index][2]
+                    output.append([songid, one_song_keyword,one_song_valence, one_song_arousal])
+
+        return output
+
+
+    def get_songid_list(self):
+        songid_list = []
+        valence_files = os.listdir(comment_va_dir + 'valence/')
+        for valence_file in valence_files:
+            songid_list.append(filter(str.isdigit,valence_file))
+
+        return songid_list
 
     def next_batch(self,batch_size):
         start = self._index_in_epoch
@@ -61,7 +106,7 @@ class DataSet:
         return 'Corresponding keyword Not Found!'
 
     #convert comment to vector model
-    def create_model(self,word_vec_dim = 1, save_model = False, save_model_csv = False, save_comment_key_csv = False):
+    def create_model(self,word_vec_dim = 1, save_model = False, save_model_csv = False, save_comment_key_csv = False, save_comment_va = False):
         songinfo_df = pd.read_csv(songinfo_file_dir)
         comment_model_csv = file(comment_model_csv_dir + 'dict.csv','wb')
         comment_model_writer = csv.writer(comment_model_csv)
@@ -104,13 +149,21 @@ class DataSet:
                 csvfile_model = file(comment_model_csv_dir + str(row[1]) + '.csv', 'wb')
                 writers_model = csv.writer(csvfile_model)
 
+            if save_comment_va:
+                csvfile_arousal = file(comment_va_dir + str(row[1]) + '_valence.csv', 'wb')
+                writer_va = csv.writer(csvfile_arousal)
+                #csvfile_arousal = file(comment_va_dir + str(row[1]) + '_valence.csv', 'wb')
             for key_word in key_word_single_file:
+                s = SnowNLP(key_word)
+                arousal_value = s.sentiments
                 if save_comment_key_csv:
                     writers_idf.writerow(key_word)
                 #print("vector for word '" + key_word[0] + "'")
                 if save_model_csv:
                     writers_model.writerow([key_word, model[key_word]])
 
+                if save_comment_va:
+                    writer_va.writerow([key_word,arousal_value])
                 comment_model_writer.writerow([key_word, model[key_word]]) #create word vec dictionary
                 keyword_word_vecs.append([row[1],key_word, model[key_word]]) #songid, keyword(string), vector
 
@@ -121,6 +174,27 @@ class DataSet:
 
         return models,keyword_word_vecs
 
+    def load_va_model(self):
+        valence_files = os.listdir(comment_va_dir + 'valence/')
+        arousal_files = os.listdir(comment_va_dir + 'arousal/')
+        valence_model = []
+        arousal_model = []
 
+        for valence_file in valence_files:
+            song_id = filter(str.isdigit,valence_file)
+            valence_df = pd.read_csv(comment_va_dir + 'valence/' + valence_file)
+            for index, row in valence_df.iterrows():
+                valence_model.append([song_id,row[0],row[1]]) #songid, keyword, valence_value
+
+        for arousal_file in arousal_files:
+            song_id = filter(str.isdigit,arousal_file)
+            arousal_df = pd.read_csv(comment_va_dir + 'arousal/' + arousal_file)
+            for index, row in arousal_df.iterrows():
+                arousal_model.append([song_id,row[0],row[1]]) #songid, keyword, arousal_value
+
+        return valence_model, arousal_model
+
+    def get_labels(self):
+        return self._output
 
 

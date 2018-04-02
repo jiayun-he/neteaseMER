@@ -28,9 +28,8 @@ song_id = '63959'
 
 #T = num_of_rows #total time length
 
+dataset = DataSet(create_models=False)
+va_labels = dataset.get_labels()
 
-#word_vec_dim, save_model,save_model_csv, save_comment_key_csv
-dataset = DataSet(1,True,False,False,False)
-
-word_vec = np.array([0.35129613],dtype=np.float32)
-print(dataset.vec2word(word_vec))
+#word_vec = np.array([0.35129613],dtype=np.float32)
+#print(dataset.vec2word(word_vec))
