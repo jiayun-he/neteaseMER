@@ -6,10 +6,6 @@ from model import DataSet
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-
-
-song_id = '63959'
-
 #song_df = pd.read_csv(song_acoustic_features_dir + song_id + '.wav.csv')
 #dict_df = pd.read_csv('./model/word_vec_dict.csv')
 #print('song_df.shape = ' + str(song_df.shape))
@@ -28,8 +24,15 @@ song_id = '63959'
 
 #T = num_of_rows #total time length
 
-dataset = DataSet(create_models=False)
-va_labels = dataset.get_labels()
+dataset = DataSet()
+song_ids = dataset.get_songid_list()
+for song_id in song_ids:
+    labels = dataset.concat_all(song_id)
+    song_feats = dataset.load_song_features(song_id)
+    num_of_rows = min(labels.shape[0],song_feats.shape[0])
+    mfcc_data = song_feats.iloc[0:num_of_rows,10:22]
+
+
 
 #word_vec = np.array([0.35129613],dtype=np.float32)
 #print(dataset.vec2word(word_vec))
