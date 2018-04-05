@@ -36,3 +36,39 @@ comment.py 预处理评论
 model.py
 将0330的功能封装到create_model方法中
 新增关键词查找功能（给定一个词向量在词库中给出相应的词汇）
+
+------2018_04_05更新------
+model.py 大改
+
+get_songinfo_list(): 返回一个list
+获取所有song_id?
+
+create_model()方法参数说明:
+word_vec_dim: 关键词向量的维度 整数
+save_model: 是否保存关键词word2vec模型 bool
+save_comment_vec: 是否保存关键词向量模型到csv文件 bool
+save_comment_key: 是否保存关键词到csv文件（关键词，词频） bool
+save_comment_va: 是否保存关键词的Valence和Arousal值到csv文件中 bool
+
+生成关键词的valence（积极/消极）的值的模型位置：
+snownlp/sentiments/sentiments.marshal
+
+arousal（安静/激动）：
+arousal.marshal
+
+要获取arousal的值，要先修改snownlp/sentiments/__init__.py中data的路径
+
+concat_all(): 返回pandas的dataframe对象
+将VA模型的值和关键词对应放到同一个dataframe里，如果有文件缺失会报错
+
+首次使用时要先create_model （生成对应的csv文件）
+
+目录：
+song_acoustic_features_dir = './data/song_acoustic_features/' 音乐特征
+songinfo_file_dir = './data/songinfo.csv' 歌曲信息列表
+comment_cut_dir = './data/tmp/comment_cut/' 经过jieba分词处理之后的评论
+comment_key_dir = './data/key_comment/' 经过jieba通过tf*idf方式获取的评论关键词
+comment_vec_dir = './model/key_comment_vec/' 经过word2vec处理获取的关键词向量
+comment_model_dir = './model/key_comment_model/' word2vec关键词向量模型
+comment_va_dir = './model/key_comment_va/' 通过snownlp获取的V-A模型的值
+
