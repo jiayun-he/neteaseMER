@@ -72,3 +72,5 @@ comment_vec_dir = './model/key_comment_vec/' 经过word2vec处理获取的关键
 comment_model_dir = './model/key_comment_model/' word2vec关键词向量模型
 comment_va_dir = './model/key_comment_va/' 通过snownlp获取的V-A模型的值
 
+------2018_04_11更新------
+增加pytorch lstm-rnn模型
