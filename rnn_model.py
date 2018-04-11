@@ -5,10 +5,9 @@ import torch.nn.functional as F
 class RNN(nn.Module):
     def __init__(self):
         super(RNN,self).__init__()
-        self.hidden_dim = 128
+        self.hidden_dim = 64
         self.target_dim = 2
         self.seq_length = 12
-        self.timestep = 31
         self.lstm = nn.LSTM(self.seq_length,self.hidden_dim)
 
         self.out = nn.Linear(self.hidden_dim,self.target_dim)

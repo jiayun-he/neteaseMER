@@ -2,16 +2,17 @@ import tensorflow as tf
 import sys,csv
 import pandas as pd
 import numpy as np
-from model import DataSet
+from data_model import DataSet
+import matplotlib.pyplot as plt
 import torch
 import torch.autograd as autograd
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import rnn_model
+import time
 reload(sys)
 sys.setdefaultencoding('utf-8')
-
 #song_df = pd.read_csv(song_acoustic_features_dir + song_id + '.wav.csv')
 #dict_df = pd.read_csv('./model/word_vec_dict.csv')
 #print('song_df.shape = ' + str(song_df.shape))
@@ -32,43 +33,75 @@ sys.setdefaultencoding('utf-8')
 
 dataset = DataSet()
 song_ids = dataset.get_songid_list()
-#for song_id in song_ids:
-song_id = '63661'
-labels = dataset.concat_all(song_id)
-song_feats = dataset.load_song_features(song_id)
-num_of_rows = min(labels.shape[0],song_feats.shape[0])
-mfcc_data = song_feats.iloc[0:num_of_rows,10:22]
-time_step = mfcc_data.shape[1]
-x = mfcc_data[0:num_of_rows]
-y = labels[['valence_value','arousal_value']]
+num_of_songs = len(song_ids)
+total_length = 0
+is_first = True
+for song_id in song_ids:
+    labels = dataset.concat_all(song_id)
+    feats = dataset.load_song_features(song_id)
+    num_of_rows = min(labels.shape[0],feats.shape[0])
+    mfcc_data = feats.iloc[0:num_of_rows,9:21]
+    chroma_vector = feats.iloc[0:num_of_rows,21:32]
+    chroma_deviation = feats.iloc[0:num_of_rows,33]
+    energy = feats.iloc[0:num_of_rows,1]
+    total_length += num_of_rows
+    if (is_first):
+        feats_all = mfcc_data.as_matrix()
+        labels_all = labels.as_matrix()
+        is_first = False
 
-#print(x.shape,y.shape) #(154,12),(154,2)
+    else:
+        feats_all = np.append(feats_all,mfcc_data,axis=0)
+        labels_all = np.append(labels_all,labels,axis=0)
 
-test_x = x.iloc[0:120,:].as_matrix()
-test_y = y.iloc[0:120,:].as_matrix()
+
+x_in = feats_all[0:2*(total_length/3),:]
+y_in = labels_all[0:2*(total_length/3),0:2]
+print('size of training set: ',x_in.shape,y_in.shape)
+x_test = feats_all[2*(total_length)/3:total_length,:]
+y_test = labels_all[2*(total_length)/3:total_length,0:2]
+print('size of test set: ',x_test.shape,y_test.shape)
 
 def prepare_sequence(seq):
-    tensor = torch.from_numpy(seq).float()
+    tensor = torch.from_numpy(seq.astype(float)).float()
     return autograd.Variable(tensor)
 
 model = rnn_model.RNN()
 loss_function = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(),lr=0.1)
-test_input = prepare_sequence(x.iloc[121:153,:].as_matrix())
-test_target = prepare_sequence(y.iloc[121:153, :].as_matrix())
-for epoch in range(1000):
+
+#plt.close()
+#fig=plt.figure()
+#plt.grid(True)
+#plt.xlabel("time")
+#plt.ylabel("arousal")
+#plt.ylim(0,1)
+#plt.legend()
+start = time.time()
+for epoch in range(100):
 #    for idx in range(test_x.shape[0]):
     model.zero_grad()
     model.hidden = model.init_hidden()
-    input = prepare_sequence(test_x)
-    target = prepare_sequence(test_y)
+    input = prepare_sequence(x_in)
+    target = prepare_sequence(y_in)
     #print(input.view(-1,1,12),target)
     #prediction (batch_size * time_step * size_of(output space))
     prediction = model(input)
     loss = loss_function(prediction,target.view(1,-1,2))
     loss.backward()
     optimizer.step()
-    if epoch%100 == 0:
-        test_score = model(test_input)
-        print('epoch', epoch, 'loss_on_test_set: ', loss_function(test_score, test_target).data[0])
+    if epoch%10 == 0:
+        end = time.time()
+        print('epoch: ', epoch, 'loss: ', loss.data[0])
+        print('time/10epoch: ', (end-start))
+        start = time.time()
+        #plt.cla()
+        #plt.plot(score_nparr[:,1],'x-',label = 'logits')
+        #plt.plot(target_nparr[:,1],'+-',label = 'targets')
+        #plt.legend()
+        #plt.show()
 #print(dataset.vec2word(word_vec))
+
+test_score = model(prepare_sequence(x_test))
+loss_new = loss_function(test_score,prepare_sequence(y_test))
+print('epoch: ', epoch, 'loss on test set: ', loss_new.data[0])
