@@ -44,8 +44,8 @@ y = labels[['valence_value','arousal_value']]
 
 #print(x.shape,y.shape) #(154,12),(154,2)
 
-test_x = x.iloc[0:30,:].as_matrix()
-test_y = y.iloc[0:30,:].as_matrix()
+test_x = x.iloc[0:120,:].as_matrix()
+test_y = y.iloc[0:120,:].as_matrix()
 
 def prepare_sequence(seq):
     tensor = torch.from_numpy(seq).float()
@@ -53,21 +53,22 @@ def prepare_sequence(seq):
 
 model = rnn_model.RNN()
 loss_function = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(),lr=0.1)
-test_input = prepare_sequence(x.iloc[22:23,:].as_matrix())
-test_target = prepare_sequence(y.iloc[22:23, :].as_matrix())
+optimizer = optim.Adam(model.parameters(),lr=0.1)
+test_input = prepare_sequence(x.iloc[121:153,:].as_matrix())
+test_target = prepare_sequence(y.iloc[121:153, :].as_matrix())
 for epoch in range(1000):
-    for idx in range(test_x.shape[0]):
-        model.zero_grad()
-        model.hidden = model.init_hidden()
-        input = prepare_sequence(test_x[idx])
-        target = prepare_sequence(test_y[idx])
-        scores = model(input)
-        loss = loss_function(scores,target.view(-1,2))
-        loss.backward()
-        optimizer.step()
-        #print(loss.data[0])
+#    for idx in range(test_x.shape[0]):
+    model.zero_grad()
+    model.hidden = model.init_hidden()
+    input = prepare_sequence(test_x)
+    target = prepare_sequence(test_y)
+    #print(input.view(-1,1,12),target)
+    #prediction (batch_size * time_step * size_of(output space))
+    prediction = model(input)
+    loss = loss_function(prediction,target.view(1,-1,2))
+    loss.backward()
+    optimizer.step()
     if epoch%100 == 0:
         test_score = model(test_input)
-        #print('epoch', epoch, 'loss: ', loss_function(test_score, test_target).data[0])
+        print('epoch', epoch, 'loss_on_test_set: ', loss_function(test_score, test_target).data[0])
 #print(dataset.vec2word(word_vec))
