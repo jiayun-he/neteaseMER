@@ -74,3 +74,21 @@ comment_va_dir = './model/key_comment_va/' 通过snownlp获取的V-A模型的值
 
 ------2018_04_11更新------
 增加pytorch lstm-rnn模型
+
+------2018_04_12更新------
+基本完成！ 就差测试训练和调参了
+
+------2018_04_15更新------
+更新train.py
+命令行使用方法： train.py -h (--help_
+---LSTM Music Emotion Recognition---
+params:
+-h	help
+-o	optimizer	Adam, SGD, RMSprop
+-l	loss function	MSE,L1
+-s	training size	0-150
+-r	learning_rate
+-m	momentum
+-e	epoch
+
+保存的模型文件：optimizer + loss_fn + learning_rate + momentum + training_size + epoch .pkt
