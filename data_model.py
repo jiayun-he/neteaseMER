@@ -137,7 +137,7 @@ class DataSet:
         valence = self.load_valence(song_id)
         arousal = self.load_arousal(song_id)
         key_comment_vector = self.load_key_comment_vec(song_id)
-        return pd.concat([valence,arousal['arousal_value'],key_comment_vector['vector']],axis=1,join='inner')
+        return pd.concat([valence['valence_value'],arousal['arousal_value'],key_comment_vector['vector']],axis=1,join='inner')
 
     #return a pandas dataframe given a song_id
     def load_valence(self, song_id):
