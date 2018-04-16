@@ -92,3 +92,7 @@ params:
 -e	epoch
 
 保存的模型文件：optimizer + loss_fn + learning_rate + momentum + training_size + epoch .pkt
+
+注意测试时显示的accuracy计算方法：
+metric是衡量精度 是预测出来的与实际值之间的误差接受度
+acc = 所有符合metric误差范围的预测值/所有预测值
