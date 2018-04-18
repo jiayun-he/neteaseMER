@@ -6,11 +6,12 @@ A project for Undergraduate Thesis of Jinan University.
 
 【基于LSTM-RNN 的音乐情感识别】
 
-- Tensorflow
+- PyTorch
 - spider163
 - pyAudioAnalysis
 - gensim
 - jieba
+- snownlp
 
 ##已完成的功能
 使用spider163获取歌单信息 并将评论歌词等需要用到contextual-based （基于文档的）MER的信息存放到数据库中
