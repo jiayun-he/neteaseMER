@@ -12,7 +12,11 @@ class RNN(nn.Module):
         self.out = nn.Linear(self.hidden_dim, self.target_dim)
 
     def init_hidden(self):
-        return (autograd.Variable(torch.zeros(1, 1, self.hidden_dim)),
+        if torch.cuda.is_available():
+            return (autograd.Variable(torch.zeros(1, 1, self.hidden_dim)).cuda(),
+                    autograd.Variable(torch.zeros(1, 1, self.hidden_dim)).cuda())
+        else:
+            return (autograd.Variable(torch.zeros(1, 1, self.hidden_dim)),
                 autograd.Variable(torch.zeros(1, 1, self.hidden_dim)))
 
     def forward(self,feature):
