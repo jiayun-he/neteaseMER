@@ -1,4 +1,4 @@
-#neteaseMER
+# neteaseMER
 
 A project for Undergraduate Thesis of Jinan University.
 
@@ -13,7 +13,7 @@ A project for Undergraduate Thesis of Jinan University.
 - jieba
 - snownlp
 
-##已完成的功能
+## 已完成的功能
 使用spider163获取歌单信息 并将评论歌词等需要用到contextual-based （基于文档的）MER的信息存放到数据库中
 
 ------2018_03_28更新------
